@@ -322,6 +322,63 @@
 							]
 						}
 					}
+				},
+				"7.1.1": {
+					"source": "https://ffmpeg.org/releases/ffmpeg-7.1.1.tar.gz",
+					"hash": "9a6e57a446b671012612aaeb9df5126794d5ac8f2015ca220934f99a6a4e0601",
+					"build": {
+						".*": {
+							"commands": [
+								{
+									"cmd": [
+										"tar",
+										"xzf",
+										"{DL_FILENAME}"
+									]
+								},
+								{
+									"flags": {
+										"CFLAGS": "-fPIC",
+										"LDFLAGS": "-fPIC"
+									},
+									"cwd": "{DL_DIRECTORY}",
+									"cmd": [
+										"./configure",
+										"--prefix={WORKSPACEDIR}",
+										"--enable-gpl",
+										"--enable-version3",
+										"--disable-programs",
+										"--disable-doc",
+										"--disable-avdevice",
+										"--disable-swresample",
+										"--disable-postproc",
+										"--disable-avfilter",
+										"--enable-static",
+										"--disable-shared",
+										"--enable-pic",
+										"--disable-encoders",
+										"--enable-libdav1d",
+										"--enable-lcms2",
+										"--extra-libs=-lm"
+									]
+								},
+								{
+									"cwd": "{DL_DIRECTORY}",
+									"cmd": [
+										"make",
+										"-j{NPROC}"
+									]
+								},
+								{
+									"cwd": "{DL_DIRECTORY}",
+									"cmd": [
+										"make",
+										"install"
+									]
+								}
+							]
+						}
+					}
 				}
 			}
 		},
@@ -415,6 +472,352 @@
 		}
 	],
 	"releases": [
+    {
+			"version": "R11",
+			"published": "2025-03-07T00:00:00Z",
+			"source": "https://github.com/vapoursynth/bestsource/archive/refs/tags/R11.tar.gz",
+			"hash": "b2c0d3e135a71e84df5a008607f00a98251019db571be2f0447a2c5a00240e88",
+			"filename": "bestsource-R11.tar.gz",
+			"additional_files": {
+				".*": [
+					"{BUILDDIR}/{DL_DIRECTORY}/LICENSE",
+					"{BUILDDIR}/{DL_DIRECTORY}/README.md"
+				]
+			},
+			"os-min-version": {
+				"darwin-x86_64": "10.15"
+			},
+			"build": {
+				"linux-.*": {
+					"dependencies": [
+						{
+							"name": "zlib",
+							"version": "v1.3.1"
+						},
+						{
+							"name": "xxhash",
+							"version": "v0.8.2"
+						},
+						{
+							"name": "dav1d",
+							"version": "1.5.0"
+						},
+						{
+							"name": "littlecms",
+							"version": "lcms2.16"
+						},
+						{
+							"name": "ffmpeg",
+							"version": "7.1.1"
+						}
+					],
+					"commands": [
+						{
+							"cmd": [
+								"tar",
+								"xzf",
+								"{DL_FILENAME}"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"rm",
+								"-rf",
+								"AviSynthPlus"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"wget",
+								"-O",
+								"AviSynthPlus-bdb6e7ab71832a9dd8a6c7edb0d3a76f56297fb2.tar.gz",
+								"https://github.com/AviSynth/AviSynthPlus/archive/bdb6e7ab71832a9dd8a6c7edb0d3a76f56297fb2.tar.gz"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"tar",
+								"xzf",
+								"AviSynthPlus-bdb6e7ab71832a9dd8a6c7edb0d3a76f56297fb2.tar.gz"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"mv",
+								"AviSynthPlus-bdb6e7ab71832a9dd8a6c7edb0d3a76f56297fb2",
+								"AviSynthPlus"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"rm",
+								"-rf",
+								"libp2p"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"wget",
+								"-O",
+								"the-sekrit-twc-libp2p-1e3818bd7277.tar.gz",
+								"https://bitbucket.org/the-sekrit-twc/libp2p/get/1e3818bd7277165819f659d410873fe5dab37af6.tar.gz"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"tar",
+								"xzf",
+								"the-sekrit-twc-libp2p-1e3818bd7277.tar.gz"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"mv",
+								"the-sekrit-twc-libp2p-1e3818bd7277",
+								"libp2p"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}/src",
+							"cmd": [
+								"sed",
+								"-i",
+								"s/#include <cassert>/#include <cassert>\\n#include <cinttypes>/g",
+								"bsshared.cpp"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"meson",
+								"rewrite",
+								"kwargs",
+								"delete",
+								"target",
+								"bestsource",
+								"install_dir",
+								"foobar"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"meson",
+								"setup",
+								"--prefix={WORKSPACEDIR}",
+								"--libdir={WORKSPACEDIR}/lib",
+								"-Ddefault_library=static",
+								"build"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"ninja",
+								"-C",
+								"build"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"ninja",
+								"-C",
+								"build",
+								"install"
+							]
+						}
+					]
+				},
+				".*": {
+					"dependencies": [
+						{
+							"name": "zlib",
+							"version": "v1.3.1"
+						},
+						{
+							"name": "xxhash",
+							"version": "v0.8.2"
+						},
+						{
+							"name": "dav1d",
+							"version": "1.5.0"
+						},
+						{
+							"name": "littlecms",
+							"version": "lcms2.16"
+						},
+						{
+							"name": "ffmpeg",
+							"version": "7.1.1"
+						}
+					],
+					"commands": [
+						{
+							"cmd": [
+								"tar",
+								"xzf",
+								"{DL_FILENAME}"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"rm",
+								"-rf",
+								"AviSynthPlus"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"wget",
+								"-O",
+								"AviSynthPlus-bdb6e7ab71832a9dd8a6c7edb0d3a76f56297fb2.tar.gz",
+								"https://github.com/AviSynth/AviSynthPlus/archive/bdb6e7ab71832a9dd8a6c7edb0d3a76f56297fb2.tar.gz"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"tar",
+								"xzf",
+								"AviSynthPlus-bdb6e7ab71832a9dd8a6c7edb0d3a76f56297fb2.tar.gz"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"mv",
+								"AviSynthPlus-bdb6e7ab71832a9dd8a6c7edb0d3a76f56297fb2",
+								"AviSynthPlus"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"rm",
+								"-rf",
+								"libp2p"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"wget",
+								"-O",
+								"the-sekrit-twc-libp2p-1e3818bd7277.tar.gz",
+								"https://bitbucket.org/the-sekrit-twc/libp2p/get/1e3818bd7277165819f659d410873fe5dab37af6.tar.gz"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"tar",
+								"xzf",
+								"the-sekrit-twc-libp2p-1e3818bd7277.tar.gz"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"mv",
+								"the-sekrit-twc-libp2p-1e3818bd7277",
+								"libp2p"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"meson",
+								"rewrite",
+								"kwargs",
+								"delete",
+								"target",
+								"bestsource",
+								"install_dir",
+								"foobar"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"meson",
+								"setup",
+								"--prefix={WORKSPACEDIR}",
+								"--libdir={WORKSPACEDIR}/lib",
+								"-Ddefault_library=static",
+								"build"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"ninja",
+								"-C",
+								"build"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"ninja",
+								"-C",
+								"build",
+								"install"
+							]
+						}
+					]
+				}
+			},
+			"buildtools_dependencies": {
+				".*": [
+					{
+						"name": "meson",
+						"version": [
+							">=",
+							"0.60.0"
+						]
+					},
+					{
+						"name": "ninja",
+						"version": [
+							">=",
+							"1.10.0"
+						]
+					},
+					{
+						"name": "cmake",
+						"version": [
+							">=",
+							"3.24.0"
+						]
+					}
+				]
+			},
+			"release_files": {
+				"linux-.*": [
+					"{WORKSPACEDIR}/lib/bestsource.so"
+				],
+				"darwin-.*": [
+					"{WORKSPACEDIR}/lib/bestsource.dylib"
+				]
+			},
+			"tests": {
+				".*": [
+					"test-bs-av1"
+				]
+			},
+			"targetname": "bestsource"
+		},
 		{
 			"version": "R8",
 			"published": "2024-10-23T18:42:53Z",
