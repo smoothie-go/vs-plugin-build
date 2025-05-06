@@ -40,9 +40,9 @@ jobs:
           export PKG_CONFIG_PATH="${{ github.workspace }}/workspace/lib/pkgconfig:$PKG_CONFIG_PATH"
           export LD_LIBRARY_PATH="${{ github.workspace }}/workspace/lib:$LD_LIBRARY_PATH"
           cd ${{ github.workspace }}
-          wget -O vapoursynth-R69.tar.gz https://github.com/vapoursynth/vapoursynth/archive/refs/tags/R69.tar.gz
-          tar xzf vapoursynth-R69.tar.gz
-          cd vapoursynth-R69
+          wget -O vapoursynth-R70.tar.gz https://github.com/vapoursynth/vapoursynth/archive/refs/tags/R70.tar.gz
+          tar xzf vapoursynth-R70.tar.gz
+          cd vapoursynth-R70
           ./autogen.sh
           ./configure --prefix="${{ github.workspace }}/workspace"
           make
