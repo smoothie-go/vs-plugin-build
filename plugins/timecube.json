@@ -1,0 +1,106 @@
+{
+	"name": "timecube",
+	"type": "VSPlugin",
+	"description": "SIMULTANEOUS 4-DAY TIME CUBE",
+	"identifier": "day.simultaneous.4",
+	"github": "https://github.com/sekrit-twc/timecube",
+	"releases": [
+    {
+			"version": "r3.1",
+			"published": "2022-01-29T00:00:00Z",
+			"source": "https://github.com/sekrit-twc/timecube/archive/refs/tags/r3.1.tar.gz",
+			"hash": "a4bbe793c733c72e6225d9586618ed498219f51ee23a584724d3f2507c0b5249",
+			"filename": "r3.1.tar.gz",
+			"os-min-version": {
+				"darwin-x86_64": "10.15"
+			},
+			"build": {
+				".*": {
+					"commands": [
+						{
+							"cmd": [
+								"tar",
+								"xzf",
+								"{DL_FILENAME}"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"wget",
+								"-O",
+								"graphengine.zip",
+								"https://github.com/sekrit-twc/graphengine/archive/509c1c3a9a3561945a1acd3b9bb1219763fe7c57.zip"
+							]
+						},
+						{
+							"cwd":"{DL_DIRECTORY}",
+							"cmd": [
+								"unzip",
+								"graphengine.zip"
+							]
+						},
+						{
+							"cwd":"{DL_DIRECTORY}",
+							"cmd": [
+								"mv",
+								"graphengine-509c1c3a9a3561945a1acd3b9bb1219763fe7c57",
+								"graphengine"
+							]
+						},
+						{
+							"cwd":"{DL_DIRECTORY}",
+							"cmd": [
+								"wget",
+								"-O",
+								"vsxx.zip",
+								"https://github.com/sekrit-twc/vsxx/archive/de38f0e128c85782494ae00565698a2b25e87869.zip"
+							]
+						},
+						{
+							"cwd":"{DL_DIRECTORY}",
+							"cmd": [
+								"unzip",
+								"vsxx.zip"
+							]
+						},
+						{
+							"cwd":"{DL_DIRECTORY}",
+							"cmd": [
+								"mv",
+								"vsxx-de38f0e128c85782494ae00565698a2b25e87869",
+								"vsxx"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"make -C \"timecube-build\""
+							]
+						}
+					]
+				}
+			},
+			"buildtools_dependencies": {
+				".*": [
+					{
+						"name": "make",
+						"version": [
+							">=",
+							"0.0.0"
+						]
+					}
+				]
+			},
+			"release_files": {
+				"linux-.*": [
+					"{WORKSPACEDIR}/timecube-build/vscube.so"
+				],
+				"darwin-.*": [
+					"{WORKSPACEDIR}/timecube-build/vscube.dylib"
+				]
+			},
+			"targetname": "timecube"
+	}
+	]
+}
