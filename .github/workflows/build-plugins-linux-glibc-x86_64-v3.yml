@@ -6,7 +6,7 @@ on:
 jobs:
   build-linux:
     name: Build Linux
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: write # IMPORTANT: mandatory for making GitHub Releases
@@ -49,11 +49,11 @@ jobs:
           export CXXFLAGS="-fPIC"
           export PKG_CONFIG_ALLOW_CROSS=1
           export PKG_CONFIG_ALL_STATIC=1
-          pip3 install meson ninja pyzstd click
+          pip3 install --break-system-packages meson ninja pyzstd click
           cd ${{ github.workspace }}
           gh release list -L 100000 --repo '${{ github.repository }}' | grep -m1 "vapoursynth-.*" | cut -f3 | xargs -i gh release download {} --repo '${{ github.repository }}' --pattern 'vapoursynth-build-linux-x86_64*'
           tar xzf vapoursynth-build-linux-x86_64.tar.gz
-          export PYTHONPATH="${{ github.workspace }}/workspace/lib/python3.10/site-packages:${{ github.workspace }}/workspace/lib/python3.10/dist-packages:${{ github.workspace }}/workspace/local/lib/python3.10/dist-packages"
+          export PYTHONPATH="${{ github.workspace }}/workspace/lib/python3.12/site-packages:${{ github.workspace }}/workspace/lib/python3.12/dist-packages:${{ github.workspace }}/workspace/local/lib/python3.12/dist-packages"
           ./github-build.py '${{ github.repository }}' linux-glibc-x86_64-v3
 
       - name: Upload log
