@@ -6,7 +6,7 @@ on:
 jobs:
   build-macos-aarch64:
     name: Build macOS (Apple Silicon)
-    runs-on: macos-14
+    runs-on: macos-15
 
     permissions:
       contents: write # IMPORTANT: mandatory for making GitHub Releases
@@ -16,6 +16,11 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          override: true
 
       - name: Install tools
         run: |
@@ -28,6 +33,7 @@ jobs:
           cd ${{ github.workspace }}
           export CFLAGS="${CFLAGS} -I/opt/homebrew/include -mmacosx-version-min=11.0 -mmacos-version-min=11.0"
           export CPPFLAGS="${CPPFLAGS} -I/opt/homebrew/include -mmacosx-version-min=11.0 -mmacos-version-min=11.0"
+          export RUSTFLAGS="-C link-arg=-mmacosx-version-min=11.0 -C link-arg=-mmacos-version-min=11.0"
           export MACOSX_DEPLOYMENT_TARGET="11.0"
           export MACOS_DEPLOYMENT_TARGET="11.0"
           python3 -m pip install --break-system-packages pyzstd click

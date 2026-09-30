@@ -31,7 +31,9 @@ config_vars = {
     "VSPIPE": None,
     "PLUGIN_FILENAME": None,
     "DL_FILENAME": None,
-    "DL_DIRECTORY": None
+    "DL_DIRECTORY": None,
+    "RUST_TARGET": None,
+    "LIB_EXTENSION": 'so'
 }
 
 def get_platform() -> Optional[str]:
@@ -52,6 +54,24 @@ def get_platform() -> Optional[str]:
         else:
             return 'win32'
     return None
+
+def get_rusttarget(pl: str) -> Optional[str]:
+    pll = pl.split('-')
+    out = None
+    if pll[0] == 'linux':
+        out = pll[2]+'-unknown-linux-'
+        if pll[1] == 'glibc':
+            out += 'gnu'
+        else:
+            out += pll[1]
+    elif pll[0] == 'darwin':
+        out = pll[1]+'-apple-darwin'
+    elif pl == 'win64':
+        out = 'x86_64-pc-windows-gnu'
+    elif pl == 'win32':
+        out = 'i686-pc-windows-gnu'
+        
+    return out
 
 def setup_environment() -> bool:
     global environment
@@ -74,11 +94,13 @@ def setup_env_os_version(version: str) -> bool:
     if pf.uname().system == 'Darwin':
         environment['MACOS_DEPLOYMENT_TARGET'] = version
         environment['MACOSX_DEPLOYMENT_TARGET'] = version
-        for e in ['-mmacosx-version-min=', '-mmacos-version-min=']:
-            if environment['CFLAGS'].find(e) != -1:
-                environment['CFLAGS'] = re.sub(e+'[0-9\\.]+', e+version, environment['CFLAGS'])
-            else:
-                environment['CFLAGS'] = e+version+' '+environment['CFLAGS']
+        for f in ['CFLAGS', 'CPPFLAGS', 'CXXFLAGS']:
+            for e in ['-mmacosx-version-min=', '-mmacos-version-min=']:
+                if environment.get(f,None) != None:
+                    if environment[f].find(e) != -1:
+                        environment[f] = re.sub(e+'[0-9\\.]+', e+version, environment[f])
+                    else:
+                        environment[f] = e+version+' '+environment[f]
     return True
 
 def compare_version(ver_a: str, ver_b: str) -> int:
@@ -210,6 +232,7 @@ def download_and_build(commands: list, url: str, chash: str, fname: Optional[str
 
 def create_file(fname: str, file_def: dict) -> bool:
     try:
+        os.makedirs(file_def['path'].format_map(config_vars), exist_ok=True)
         with open(os.path.join(file_def['path'].format_map(config_vars), fname), 'wb') as f:
             output = None
             if file_def['encoding'].startswith('text/'):
@@ -239,7 +262,7 @@ def get_build_for_platform(build: dict) -> Optional[dict]:
             return v
     return None
 
-def build_plugin(filename: str, version: Optional[str] = None) -> bool:
+def build_plugin(filename: str, version: Optional[str] = None, skip_deps: bool = False) -> bool:
     global config_vars
     # load build definition
     build_def = None
@@ -271,30 +294,40 @@ def build_plugin(filename: str, version: Optional[str] = None) -> bool:
                      return -3
     # get build instructions for platform
     if build_rel.get('os-min-version', None) != None:
+        for k, v in build_rel['os-min-version'].items():
+            if re.fullmatch(k, platform):
+                setup_env_os_version(build_rel['os-min-version'][k])
+                break
         setup_env_os_version(build_rel['os-min-version'].get(get_platform(), None))
     build_platf = get_build_for_platform(build_rel['build'])
     if build_platf == None:
         print("Error: No build instructions for "+build_def['name']+" on "+platform+" found")
         return -4
+    if build_rel.get('filename', None) == None or build_rel.get('filename', None) == '':
+        config_vars['DL_FILENAME'] = ('x/'+urlparse(url).path).rsplit("/", 1)[1]
+    else:
+        config_vars['DL_FILENAME'] = build_rel['filename']
+    config_vars['DL_DIRECTORY'] = remove_ext(config_vars['DL_FILENAME'])
     # create files 
     for f in build_platf.get('create_files', []):
         if create_file(f, build_def['file_definitions'][f]) == False:
             return -5
     # get and build runtime dependencies
-    for d in build_platf.get('dependencies', []):
-        try:
-            i = build_def['runtime_dependencies'][d['name']]['versions'][d['version']]
-        except:
-            print("Error: Dependency "+d['name']+" not found")
-            return -6
-        build_dep_platf = get_build_for_platform(i['build'])
-        if build_dep_platf == None:
-            print("Error: No build instructions for "+d['name']+" on "+platform+" found")
-            return -7
-        else:
-            if download_and_build(build_dep_platf['commands'],i['source'],i['hash'],i.get('filename', None)) == False:
-                print("Error: Failed to build "+d['name'])
-                return -8
+    if skip_deps is False:
+        for d in build_platf.get('dependencies', []):
+            try:
+                i = build_def['runtime_dependencies'][d['name']]['versions'][d['version']]
+            except:
+                print("Error: Dependency "+d['name']+" not found")
+                return -6
+            build_dep_platf = get_build_for_platform(i['build'])
+            if build_dep_platf == None:
+                print("Error: No build instructions for "+d['name']+" on "+platform+" found")
+                return -7
+            else:
+                if download_and_build(build_dep_platf['commands'],i['source'],i['hash'],i.get('filename', None)) == False:
+                    print("Error: Failed to build "+d['name'])
+                    return -8
     # build plugin
     if download_and_build(build_platf['commands'],build_rel['source'],build_rel['hash'],build_rel.get('filename', None)) == False:
         print("Error: Failed to build "+build_def['name'])
@@ -385,6 +418,7 @@ def main() -> int:
     parser.add_argument("-t", "--testdir", type=str, help="directory for the tests", default=os.path.join(os.path.dirname(os.path.realpath(__file__)),'test'))
     parser.add_argument("--vspipe", type=str, help="command for vspipe", default='vspipe')
     parser.add_argument("--disable-tests", help="disable tests", default=False, action='store_true')
+    parser.add_argument("--skip-deps", help="skip dependency build (for debug)", default=False, action='store_true')
     parser.add_argument("-n", "--nproc", type=int, help="number of processors/cores to use for building", default=os.cpu_count())
     parser.add_argument("-p", "--platform", type=str, help="platform used to select build definition", default=get_platform())
     parser.add_argument("-v", "--version", type=str, help="build specific version of plugin", default=None)
@@ -400,7 +434,19 @@ def main() -> int:
 
     if platform == None:
         print("Error: No platform set and auto-detect of platform failed")
-        return 1   
+        return 1
+    if platform.startswith('win'):
+        config_vars['LIB_EXTENSION'] = 'dll'
+    elif platform.startswith('darwin'):
+        config_vars['LIB_EXTENSION'] = 'dylib'
+    elif platform.startswith('linux'):
+        config_vars['LIB_EXTENSION'] = 'so'
+    else:
+        print("Warning: No library extension for this platform found, defaulting to: .", config_vars['LIB_EXTENSION'])
+    
+    config_vars['RUST_TARGET'] = get_rusttarget(platform)
+    if config_vars['RUST_TARGET'] == None:
+        print("Warning: Rust target not found, building Rust components will fail")
 
     os.makedirs(config_vars['BUILDDIR'], exist_ok=True)
     os.makedirs(config_vars['WORKSPACEDIR'], exist_ok=True)
@@ -416,7 +462,7 @@ def main() -> int:
     plugin_json = args.plugin
     if plugin_json.endswith('.json') is False:
         plugin_json = os.path.join(os.path.dirname(os.path.realpath(__file__)),"plugins",plugin_json+'.json')
-    return build_plugin(plugin_json, args.version)
+    return build_plugin(plugin_json, args.version, args.skip_deps)
 
 if __name__ == '__main__':
     sys.exit(main())

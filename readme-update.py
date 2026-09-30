@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import subprocess
 import sys
 from py_markdown_table.markdown_table import markdown_table
@@ -19,6 +20,7 @@ def main() -> int:
     rel = {'com.deinterlace.nnedi3': {'linux-glibc-x86_64': '✅', 'darwin-x86_64': '✅', 'darwin-aarch64': '✅' },
     'com.ifb.colorbars': {'linux-glibc-x86_64': '✅', 'darwin-x86_64': '✅', 'darwin-aarch64': '✅' },
     'com.vapoursynth.ffms2': {'linux-glibc-x86_64': '✅', 'darwin-x86_64': '✅', 'darwin-aarch64': '✅' }, }
+    # these were added before the new tagging system
     for t in taglist:
         t = t.strip()
         if t.startswith('vsplugin/') == False:
@@ -59,6 +61,12 @@ def main() -> int:
                 out[vsrepo['category']]['plugins'][vspbuild['identifier']][x] += ' ('+m+')'
         for x in ['linux-glibc-x86_64', 'darwin-x86_64', 'darwin-aarch64']:
             out[vsrepo['category']]['plugins'][vspbuild['identifier']].setdefault(x,'❌')
+            for y in vspbuild.get('unsupported', []):
+                if re.fullmatch(y,x):
+                    out[vsrepo['category']]['plugins'][vspbuild['identifier']][x] = '🚫'
+                    break
+        if out[vsrepo['category']]['plugins'][vspbuild['identifier']]['linux-glibc-x86_64'] == '❌' and out[vsrepo['category']]['plugins'][vspbuild['identifier']].get('linux-glibc-x86_64-v3', 'X') == '✅':
+            out[vsrepo['category']]['plugins'][vspbuild['identifier']]['linux-glibc-x86_64'] = '✅ (v3)'
     out = {k: out[k] for k in sorted(list(out.keys()))}
     for cat, c in out.items():
         if cat in ['Plugin Dependency']:

@@ -1,14 +1,14 @@
 {
-	"name": "RemoveGrain",
+	"name": "ATWT",
 	"type": "VSPlugin",
-	"description": "RemoveGrain is a spatial denoising filter with various filtering modes.",
-	"identifier": "com.vapoursynth.removegrainvs",
-	"github": "https://github.com/vapoursynth/vs-removegrain",
+	"description": "Implements the \u00c0 Trous Wavelet Transform for frequency separation. It decomposes a video clip into multiple frequency layers (Detail) and a residual layer (Base).",
+	"identifier": "com.yuygfgg.atwt",
+	"github": "https://github.com/yuygfgg/Vapoursynth-ATWT",
 	"file_definitions": {
 		"test-filter-0.vpy": {
 			"path": "{TESTDIR}",
 			"encoding": "text/utf-8",
-			"data": "import vapoursynth as vs\ncore = vs.core\ncore.std.LoadPlugin('{TESTDIR}/{PLUGIN_FILENAME}')\nc = core.std.BlankClip(format=vs.YUV420P8,width=320,height=240,length=10)\nc = core.rgvs.RemoveGrain(c,1)\nc.set_output(0)\n"
+			"data": "import vapoursynth as vs\ncore = vs.core\ncore.std.LoadPlugin('{TESTDIR}/{PLUGIN_FILENAME}')\nc = core.std.BlankClip(format=vs.YUV420P8,width=320,height=240,length=10)\nc = core.atwt.ExtractFrequency(c)\nc.set_output(0)\n"
 		}
 	},
 	"tests": [
@@ -31,11 +31,16 @@
 	],
 	"releases": [
 		{
-			"version": "git:89ca38a",
-			"published": "2022-10-28T15:31:38Z",
-			"source": "https://github.com/vapoursynth/vs-removegrain/archive/89ca38a.tar.gz",
-			"hash": "79b8a291fa0c449dd4b742deca91b03fa609e81e19332e1c9bb092864fbfa968",
-			"filename": "vs-removegrain-89ca38a6971e371bdce2778291393258daa5f03b.tar.gz",
+			"version": "R1",
+			"published": "2026-01-18T13:28:30Z",
+			"source": "https://github.com/yuygfgg/Vapoursynth-ATWT/archive/refs/tags/R1.tar.gz",
+			"hash": "fc52e52447a5e41fee54ffbce09e5825429c9389750c8e39ecbec10d0b3a4a06",
+			"filename": "Vapoursynth-ATWT-R1.tar.gz",
+			"additional_files": {
+				".*": [
+					"{BUILDDIR}/{DL_DIRECTORY}/README.md"
+				]
+			},
 			"build": {
 				".*": {
 					"commands": [
@@ -54,7 +59,7 @@
 								"kwargs",
 								"delete",
 								"target",
-								"removegrain",
+								"atwt",
 								"install_dir"
 							]
 						},
@@ -109,10 +114,10 @@
 			},
 			"release_files": {
 				"linux-.*": [
-					"{WORKSPACEDIR}/lib/libremovegrain.so"
+					"{WORKSPACEDIR}/lib/libatwt.so"
 				],
 				"darwin-.*": [
-					"{WORKSPACEDIR}/lib/libremovegrain.dylib"
+					"{WORKSPACEDIR}/lib/libatwt.dylib"
 				]
 			},
 			"tests": {

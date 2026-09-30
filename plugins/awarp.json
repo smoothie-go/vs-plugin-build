@@ -1,14 +1,14 @@
 {
-	"name": "RemoveGrain",
+	"name": "AWarp",
 	"type": "VSPlugin",
-	"description": "RemoveGrain is a spatial denoising filter with various filtering modes.",
-	"identifier": "com.vapoursynth.removegrainvs",
-	"github": "https://github.com/vapoursynth/vs-removegrain",
+	"description": "AWarp filter modified from https://github.com/dubhater/vapoursynth-awarpsharp2",
+	"identifier": "com.holywu.awarp",
+	"github": "https://github.com/HolyWu/VapourSynth-AWarp",
 	"file_definitions": {
 		"test-filter-0.vpy": {
 			"path": "{TESTDIR}",
 			"encoding": "text/utf-8",
-			"data": "import vapoursynth as vs\ncore = vs.core\ncore.std.LoadPlugin('{TESTDIR}/{PLUGIN_FILENAME}')\nc = core.std.BlankClip(format=vs.YUV420P8,width=320,height=240,length=10)\nc = core.rgvs.RemoveGrain(c,1)\nc.set_output(0)\n"
+			"data": "import vapoursynth as vs\ncore = vs.core\ncore.std.LoadPlugin('{TESTDIR}/{PLUGIN_FILENAME}')\nc = core.std.BlankClip(format=vs.YUV420P8,width=320,height=240,length=10)\nc = core.awarp.AWarp(c,c)\nc.set_output(0)\n"
 		}
 	},
 	"tests": [
@@ -31,11 +31,17 @@
 	],
 	"releases": [
 		{
-			"version": "git:89ca38a",
-			"published": "2022-10-28T15:31:38Z",
-			"source": "https://github.com/vapoursynth/vs-removegrain/archive/89ca38a.tar.gz",
-			"hash": "79b8a291fa0c449dd4b742deca91b03fa609e81e19332e1c9bb092864fbfa968",
-			"filename": "vs-removegrain-89ca38a6971e371bdce2778291393258daa5f03b.tar.gz",
+			"version": "r2",
+			"published": "2025-11-10T15:45:49Z",
+			"source": "https://github.com/HolyWu/VapourSynth-AWarp/archive/refs/tags/r2.tar.gz",
+			"hash": "ca2e940c8e3d3c906064e9371e12dfc82d85f4365e867f155285d0307d5623f9",
+			"filename": "VapourSynth-AWarp-r2.tar.gz",
+			"additional_files": {
+				".*": [
+					"{BUILDDIR}/{DL_DIRECTORY}/LICENSE",
+					"{BUILDDIR}/{DL_DIRECTORY}/README.md"
+				]
+			},
 			"build": {
 				".*": {
 					"commands": [
@@ -54,7 +60,7 @@
 								"kwargs",
 								"delete",
 								"target",
-								"removegrain",
+								"awarp",
 								"install_dir"
 							]
 						},
@@ -109,10 +115,10 @@
 			},
 			"release_files": {
 				"linux-.*": [
-					"{WORKSPACEDIR}/lib/libremovegrain.so"
+					"{WORKSPACEDIR}/lib/awarp.so"
 				],
 				"darwin-.*": [
-					"{WORKSPACEDIR}/lib/libremovegrain.dylib"
+					"{WORKSPACEDIR}/lib/awarp.dylib"
 				]
 			},
 			"tests": {

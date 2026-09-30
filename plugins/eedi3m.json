@@ -1,14 +1,14 @@
 {
-	"name": "RemoveGrain",
+	"name": "EEDI3m",
 	"type": "VSPlugin",
-	"description": "RemoveGrain is a spatial denoising filter with various filtering modes.",
-	"identifier": "com.vapoursynth.removegrainvs",
-	"github": "https://github.com/vapoursynth/vs-removegrain",
+	"description": "EEDI3 fork with OpenCL and speed optimization by HolyWu",
+	"identifier": "com.holywu.eedi3",
+	"github": "https://github.com/HomeOfVapourSynthEvolution/VapourSynth-EEDI3",
 	"file_definitions": {
 		"test-filter-0.vpy": {
 			"path": "{TESTDIR}",
 			"encoding": "text/utf-8",
-			"data": "import vapoursynth as vs\ncore = vs.core\ncore.std.LoadPlugin('{TESTDIR}/{PLUGIN_FILENAME}')\nc = core.std.BlankClip(format=vs.YUV420P8,width=320,height=240,length=10)\nc = core.rgvs.RemoveGrain(c,1)\nc.set_output(0)\n"
+			"data": "import vapoursynth as vs\ncore = vs.core\ncore.std.LoadPlugin('{TESTDIR}/{PLUGIN_FILENAME}')\nc = core.std.BlankClip(format=vs.YUV420P8,width=320,height=240,length=10)\nc = core.eedi3m.EEDI3(c,field=0)\nc.set_output(0)\n"
 		}
 	},
 	"tests": [
@@ -31,11 +31,17 @@
 	],
 	"releases": [
 		{
-			"version": "git:89ca38a",
-			"published": "2022-10-28T15:31:38Z",
-			"source": "https://github.com/vapoursynth/vs-removegrain/archive/89ca38a.tar.gz",
-			"hash": "79b8a291fa0c449dd4b742deca91b03fa609e81e19332e1c9bb092864fbfa968",
-			"filename": "vs-removegrain-89ca38a6971e371bdce2778291393258daa5f03b.tar.gz",
+			"version": "r8",
+			"published": "2025-12-29T10:14:46Z",
+			"source": "https://github.com/HomeOfVapourSynthEvolution/VapourSynth-EEDI3/archive/refs/tags/r8.tar.gz",
+			"hash": "4f0b221dedba805d513489b90b0605994025445ff27b65cc811d48e6464cc75f",
+			"filename": "VapourSynth-EEDI3-r8.tar.gz",
+			"additional_files": {
+				".*": [
+					"{BUILDDIR}/{DL_DIRECTORY}/LICENSE",
+					"{BUILDDIR}/{DL_DIRECTORY}/README.md"
+				]
+			},
 			"build": {
 				".*": {
 					"commands": [
@@ -54,8 +60,17 @@
 								"kwargs",
 								"delete",
 								"target",
-								"removegrain",
+								"eedi3m",
 								"install_dir"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}/EEDI3",
+							"cmd": [
+								"sed",
+								"-i",
+								"s/#include <string>/#include <cstddef>\\n#include <string>/g",
+								"EEDI3.cpp"
 							]
 						},
 						{
@@ -71,7 +86,8 @@
 						{
 							"cwd": "{DL_DIRECTORY}",
 							"cmd": [
-								"ninja",
+								"meson",
+								"compile",
 								"-C",
 								"build"
 							]
@@ -79,10 +95,10 @@
 						{
 							"cwd": "{DL_DIRECTORY}",
 							"cmd": [
-								"ninja",
+								"meson",
+								"install",
 								"-C",
-								"build",
-								"install"
+								"build"
 							]
 						}
 					],
@@ -109,10 +125,10 @@
 			},
 			"release_files": {
 				"linux-.*": [
-					"{WORKSPACEDIR}/lib/libremovegrain.so"
+					"{WORKSPACEDIR}/lib/libeedi3m.so"
 				],
 				"darwin-.*": [
-					"{WORKSPACEDIR}/lib/libremovegrain.dylib"
+					"{WORKSPACEDIR}/lib/libeedi3m.dylib"
 				]
 			},
 			"tests": {
