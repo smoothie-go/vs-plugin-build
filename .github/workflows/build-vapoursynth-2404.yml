@@ -28,7 +28,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           python3 -m pip install --upgrade pip
-          pip3 install --break-system-packages --upgrade cython
+          pip3 install --break-system-packages --upgrade cython meson ninja
           mkdir workspace
           wget -O zimg-release-3.0.6.tar.gz https://github.com/sekrit-twc/zimg/archive/refs/tags/release-3.0.6.tar.gz
           tar xzf zimg-release-3.0.6.tar.gz
@@ -40,13 +40,12 @@ jobs:
           export PKG_CONFIG_PATH="${{ github.workspace }}/workspace/lib/pkgconfig:$PKG_CONFIG_PATH"
           export LD_LIBRARY_PATH="${{ github.workspace }}/workspace/lib:$LD_LIBRARY_PATH"
           cd ${{ github.workspace }}
-          wget -O vapoursynth-R73.tar.gz https://github.com/vapoursynth/vapoursynth/archive/refs/tags/R73.tar.gz
-          tar xzf vapoursynth-R73.tar.gz
-          cd vapoursynth-R73
-          ./autogen.sh
-          ./configure --prefix="${{ github.workspace }}/workspace"
-          make
-          make install
+          wget -O vapoursynth-R80.tar.gz https://github.com/vapoursynth/vapoursynth/archive/refs/tags/R80.tar.gz
+          tar xzf vapoursynth-R80.tar.gz
+          cd vapoursynth-R80
+          meson setup --prefix="${{ github.workspace }}/workspace" --libdir="${{ github.workspace }}/workspace/lib" build
+          ninja -C build
+          ninja -C build install
 
       - name: Create binary archive
         run: >-

@@ -22,7 +22,7 @@ if len(sys.argv) > 2:
     platform = ["-p", sys.argv[2]]
 
 for p in plugin_list:
-    if p.startswith("plugins/") is False:
+    if p.startswith("plugins/") is False or not os.path.isfile(p):
         continue
     p = os.path.splitext(os.path.basename(p))[0]
     print("Will build plugin "+p)

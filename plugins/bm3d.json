@@ -81,6 +81,109 @@
 	],
 	"releases": [
 		{
+			"version": "r10.1",
+			"published": "2026-05-04T15:11:02Z",
+			"source": "https://github.com/HomeOfVapourSynthEvolution/VapourSynth-BM3D/archive/refs/tags/r10.1.tar.gz",
+			"hash": "3a340c23f4d77559d7c766a2a14f4a1e408752a785958930eb4ca41e13392c85",
+			"filename": "VapourSynth-BM3D-r10.1.tar.gz",
+			"additional_files": {
+				".*": [
+					"{BUILDDIR}/{DL_DIRECTORY}/LICENSE",
+					"{BUILDDIR}/{DL_DIRECTORY}/README.md"
+				]
+			},
+			"build": {
+				".*": {
+					"dependencies": [
+						{
+							"name": "fftw3",
+							"version": "3.3.10"
+						}
+					],
+					"commands": [
+						{
+							"cmd": [
+								"tar",
+								"xzf",
+								"{DL_FILENAME}"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"meson",
+								"rewrite",
+								"kwargs",
+								"delete",
+								"target",
+								"bm3d",
+								"install_dir",
+								"foobar"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"meson",
+								"setup",
+								"--prefix={WORKSPACEDIR}",
+								"--libdir={WORKSPACEDIR}/lib",
+								"build"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"ninja",
+								"-C",
+								"build"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"ninja",
+								"-C",
+								"build",
+								"install"
+							]
+						}
+					]
+				}
+			},
+			"buildtools_dependencies": {
+				".*": [
+					{
+						"name": "meson",
+						"version": [
+							">=",
+							"0.60.0"
+						]
+					},
+					{
+						"name": "ninja",
+						"version": [
+							">=",
+							"1.10.0"
+						]
+					}
+				]
+			},
+			"release_files": {
+				"linux-.*": [
+					"{WORKSPACEDIR}/lib/libbm3d.so"
+				],
+				"darwin-.*": [
+					"{WORKSPACEDIR}/lib/libbm3d.dylib"
+				]
+			},
+			"tests": {
+				".*": [
+					"test-filter-0"
+				]
+			}
+		},
+		{
 			"version": "r9",
 			"published": "2021-10-18T08:35:23Z",
 			"source": "https://github.com/HomeOfVapourSynthEvolution/VapourSynth-BM3D/archive/refs/tags/r9.tar.gz",

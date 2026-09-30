@@ -1,0 +1,162 @@
+{
+	"name": "FrameBlender",
+	"type": "VSPlugin",
+	"description": "Modified version of VapourSynth's AverageFrames which allows for more weights",
+	"identifier": "com.vapoursynth.frameblender",
+	"github": "https://github.com/couleurm/vs-frameblender",
+	"file_definitions": {
+		"test-filter-0.vpy": {
+			"path": "{TESTDIR}",
+			"encoding": "text/utf-8",
+			"data": "import vapoursynth as vs\ncore = vs.core\ncore.std.LoadPlugin('{TESTDIR}/{PLUGIN_FILENAME}')\nc = core.std.BlankClip(format=vs.YUV420P8,width=320,height=240,length=10)\nc = core.frameblender.FrameBlend(c, [0.5, 0.5])\nc.set_output(0)\n"
+		}
+	},
+	"tests": [
+		{
+			"name": "test-filter-0",
+			"create_files": [
+				"test-filter-0.vpy"
+			],
+			"commands": [
+				{
+					"cwd": "{TESTDIR}",
+					"cmd": [
+						"{VSPIPE}",
+						"test-filter-0.vpy",
+						"--"
+					]
+				}
+			]
+		}
+	],
+	"releases": [
+		{
+			"version": "git:d4ce7829",
+			"published": "2022-08-31T15:38:08Z",
+			"source": "https://github.com/couleurm/vs-frameblender/archive/d4ce78294aeddda27ed4306c4a4a4e3d7d08d875.tar.gz",
+			"hash": "12a80301f44fa9e0d824ff62081bfc9d93dec33e4f06e5e628e7fcbf14297788",
+			"filename": "vs-frameblender-d4ce78294aeddda27ed4306c4a4a4e3d7d08d875.tar.gz",
+			"additional_files": {
+				".*": [
+					"{BUILDDIR}/{DL_DIRECTORY}/README.md"
+				]
+			},
+			"build": {
+				"linux-.*": {
+					"commands": [
+						{
+							"cmd": [
+								"tar",
+								"xzf",
+								"{DL_FILENAME}"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"mkdir",
+								"-p",
+								"{WORKSPACEDIR}/lib"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"c++",
+								"-O3",
+								"-shared",
+								"-fPIC",
+								"-std=c++17",
+								"-I./vapoursynth",
+								"src/blender.cpp",
+								"-o",
+								"{WORKSPACEDIR}/lib/libframeblender.so"
+							]
+						}
+					]
+				},
+				"darwin-.*": {
+					"commands": [
+						{
+							"cmd": [
+								"tar",
+								"xzf",
+								"{DL_FILENAME}"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"mkdir",
+								"-p",
+								"{WORKSPACEDIR}/lib"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"c++",
+								"-O3",
+								"-dynamiclib",
+								"-std=c++17",
+								"-I./vapoursynth",
+								"src/blender.cpp",
+								"-o",
+								"{WORKSPACEDIR}/lib/libframeblender.dylib"
+							]
+						}
+					]
+				},
+				"win.*": {
+					"commands": [
+						{
+							"cmd": [
+								"tar",
+								"xzf",
+								"{DL_FILENAME}"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"mkdir",
+								"-p",
+								"{WORKSPACEDIR}/lib"
+							]
+						},
+						{
+							"cwd": "{DL_DIRECTORY}",
+							"cmd": [
+								"g++",
+								"-O3",
+								"-shared",
+								"-std=c++17",
+								"-I./vapoursynth",
+								"src/blender.cpp",
+								"-o",
+								"{WORKSPACEDIR}/lib/frameblender.dll"
+							]
+						}
+					]
+				}
+			},
+			"buildtools_dependencies": {},
+			"release_files": {
+				"linux-.*": [
+					"{WORKSPACEDIR}/lib/libframeblender.so"
+				],
+				"darwin-.*": [
+					"{WORKSPACEDIR}/lib/libframeblender.dylib"
+				],
+				"win.*": [
+					"{WORKSPACEDIR}/lib/frameblender.dll"
+				]
+			},
+			"tests": {
+				".*": [
+					"test-filter-0"
+				]
+			}
+		}
+	]
+}
